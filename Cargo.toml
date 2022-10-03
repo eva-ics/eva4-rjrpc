@@ -1,0 +1,29 @@
+[package]
+name = "eva-rjrpc"
+version = "0.1.16"
+edition = "2021"
+authors = ["Sergei S. <div@altertech.com>"]
+license = "Apache-2.0"
+description = "EVA ICS JSON RPC internals"
+readme = "README.md"
+keywords = ["jsonrpc", "rpc", "json"]
+repository = "https://github.com/eva-ics/eva4-rjrpc"
+
+[lib]
+name = "rjrpc"
+path = "src/lib.rs"
+
+[features]
+http = ["base64"]
+
+[dependencies]
+eva-common = { version = "0.1.178" }
+tokio = { version = "1.15.0", features = ["full"] }
+hyper = { version = "0.14.17", features = ["full"] }
+url = "2.2.2"
+serde = { version = "1.0.133", features = ["derive", "rc"] }
+serde_json = "1.0.75"
+rmp-serde = "1.0.0"
+lazy_static = "1.4.0"
+log = "0.4.14"
+base64 = { version = "0.13.0", optional = true }
