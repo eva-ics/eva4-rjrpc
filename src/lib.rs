@@ -689,7 +689,7 @@ pub async fn jrpc_stream_worker<T, F, Fut>(
                 if let Some(resp) = response_buf {
                     let mut response = vec![header[0]];
                     #[allow(clippy::cast_possible_truncation)]
-                    response.extend(&(resp.len() as u32).to_le_bytes());
+                    response.extend((resp.len() as u32).to_le_bytes());
                     response.extend(resp);
                     match stream.write_all(&response).await {
                         Ok(_) => {}
