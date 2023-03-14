@@ -1,6 +1,6 @@
 [package]
 name = "eva-rjrpc"
-version = "0.1.16"
+version = "0.2.0"
 edition = "2021"
 authors = ["Sergei S. <div@altertech.com>"]
 license = "Apache-2.0"
@@ -17,7 +17,7 @@ path = "src/lib.rs"
 http = ["base64"]
 
 [dependencies]
-eva-common = { version = "0.1.178" }
+eva-common = { version = "0.2.1" }
 tokio = { version = "1.15.0", features = ["full"] }
 hyper = { version = "0.14.17", features = ["full"] }
 url = "2.2.2"
