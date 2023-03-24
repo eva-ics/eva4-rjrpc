@@ -145,9 +145,10 @@ impl JsonRpcRequestMeta {
 const ENCODING_JSON: u8 = 1;
 const ENCODING_MSGPACK: u8 = 2;
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone, Default)]
 #[repr(u8)]
 pub enum Encoding {
+    #[default]
     Json = ENCODING_JSON,
     MsgPack = ENCODING_MSGPACK,
 }
@@ -160,12 +161,6 @@ impl TryFrom<u8> for Encoding {
             x if x == Encoding::MsgPack as u8 => Ok(Encoding::MsgPack),
             _ => Err(JsonRpcError::invalid_request(ERR_UNSUPPORTED_ENCODING)),
         }
-    }
-}
-
-impl Default for Encoding {
-    fn default() -> Self {
-        Encoding::Json
     }
 }
 

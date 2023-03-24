@@ -113,9 +113,8 @@ impl HyperJsonRpcClient {
     pub async fn call_batch(&self, batch: &mut JsonRpcBatch) -> Result<(), JsonRpcError> {
         match batch.pack_requests(Some(self.encoding))? {
             Some(data) => {
-                let data = match http_request!(self.client, &self.uri, self.encoding, data) {
-                    Some(v) => v,
-                    None => return Ok(()),
+                let Some(data) = http_request!(self.client, &self.uri, self.encoding, data) else {
+                    return Ok(())
                 };
                 batch.unpack_responses(&data, Some(self.encoding))
             }
@@ -136,11 +135,8 @@ impl HyperJsonRpcClient {
         }
         self.id += 1;
         let req = JsonRpcRequest::new(Some(Value::U32(self.id)), method, params, self.encoding);
-        let payload = match http_request!(self.client, &self.uri, self.encoding, req.pack()?) {
-            Some(v) => v,
-            None => {
-                return Err(JsonRpcError::internal_rpc("Empty response received"));
-            }
+        let Some(payload) = http_request!(self.client, &self.uri, self.encoding, req.pack()?) else {
+            return Err(JsonRpcError::internal_rpc("Empty response received"));
         };
         let response = JsonRpcResponse::unpack(&payload, self.encoding)?;
         Ok(response)
@@ -235,7 +231,7 @@ impl HyperJsonRpcServer {
         let user_agent: String = parts
             .headers
             .get("user-agent")
-            .map_or_else(|| "".to_owned(), |v| v.to_str().unwrap_or("").to_owned());
+            .map_or_else(String::new, |v| v.to_str().unwrap_or_default().to_owned());
         let credentials = if let Some(authorization) = parts.headers.get("authorization") {
             if let Ok(auth) = authorization.to_str() {
                 let mut sp = auth.splitn(2, ' ');
@@ -303,11 +299,8 @@ impl HyperJsonRpcServer {
                 };
                 #[allow(clippy::redundant_closure)]
                 let id = qs.remove("i").map(|id| Value::String(id));
-                let method = match qs.remove("m") {
-                    Some(m) => m,
-                    None => {
+                let Some(method) = qs.remove("m") else {
                         return response!(StatusCode::BAD_REQUEST, "Method not specified");
-                    }
                 };
                 let params: BTreeMap<String, Value> = match qs.remove("p") {
                     Some(p) => match serde_json::from_str(&p) {
