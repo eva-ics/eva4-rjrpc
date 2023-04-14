@@ -2,7 +2,7 @@
 name = "eva-rjrpc"
 version = "0.2.0"
 edition = "2021"
-authors = ["Sergei S. <div@altertech.com>"]
+authors = ["Serhij S. <div@altertech.com>"]
 license = "Apache-2.0"
 description = "EVA ICS JSON RPC internals"
 readme = "README.md"
