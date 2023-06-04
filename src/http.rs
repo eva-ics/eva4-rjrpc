@@ -281,7 +281,12 @@ impl HyperJsonRpcServer {
         } else {
             None
         };
-        let meta = JsonRpcRequestMeta::http(ip, user_agent, credentials);
+        let key = parts
+            .headers
+            .get("x-auth-key")
+            .and_then(|v| v.to_str().ok())
+            .map(ToOwned::to_owned);
+        let meta = JsonRpcRequestMeta::http(ip, user_agent, credentials, key);
         match parts.method {
             Method::GET => {
                 encoding = Encoding::Json;

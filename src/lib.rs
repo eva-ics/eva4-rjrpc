@@ -73,6 +73,7 @@ pub type Credentials = (String, String);
 pub struct JsonRpcRequestMeta {
     source: RequestSource,
     credentials: Option<Credentials>,
+    key: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -92,36 +93,47 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::UnixSocket,
             credentials: None,
+            key: None,
         }
     }
     pub fn socket(ip: IpAddr) -> Self {
         Self {
             source: RequestSource::Socket(ip),
             credentials: None,
+            key: None,
         }
     }
-    pub fn http(ip: IpAddr, agent: String, credentials: Option<Credentials>) -> Self {
+    pub fn http(
+        ip: IpAddr,
+        agent: String,
+        credentials: Option<Credentials>,
+        key: Option<String>,
+    ) -> Self {
         Self {
             source: RequestSource::Http(ip, agent),
             credentials,
+            key,
         }
     }
     pub fn internal(id: String) -> Self {
         Self {
             source: RequestSource::Internal(id),
             credentials: None,
+            key: None,
         }
     }
     pub fn mqtt(id: String) -> Self {
         Self {
             source: RequestSource::Mqtt(id),
             credentials: None,
+            key: None,
         }
     }
     pub fn custom(id: String) -> Self {
         Self {
             source: RequestSource::Custom(id),
             credentials: None,
+            key: None,
         }
     }
 
@@ -139,6 +151,14 @@ impl JsonRpcRequestMeta {
             RequestSource::Http(_, ref agent) => Some(agent),
             _ => None,
         }
+    }
+    #[inline]
+    pub fn key(&self) -> Option<&str> {
+        self.key.as_deref()
+    }
+    #[inline]
+    pub fn take_key(&mut self) -> Option<String> {
+        self.key.take()
     }
 }
 
