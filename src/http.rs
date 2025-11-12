@@ -406,4 +406,8 @@ impl HyperJsonRpcServer {
                 .body(Body::from(String::new()))?
         })
     }
+
+    pub fn set_external_token_header<S: AsRef<str>>(&mut self, header_name: S) {
+        self.external_token_header = Some(header_name.as_ref().to_owned());
+    }
 }
