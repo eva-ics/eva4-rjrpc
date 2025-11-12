@@ -73,6 +73,7 @@ pub type Credentials = (String, String);
 pub struct JsonRpcRequestMeta {
     source: RequestSource,
     credentials: Option<Credentials>,
+    external_token: Option<String>,
     key: Option<String>,
 }
 
@@ -93,6 +94,7 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::UnixSocket,
             credentials: None,
+            external_token: None,
             key: None,
         }
     }
@@ -100,6 +102,7 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::Socket(ip),
             credentials: None,
+            external_token: None,
             key: None,
         }
     }
@@ -112,6 +115,7 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::Http(ip, agent),
             credentials,
+            external_token: None,
             key,
         }
     }
@@ -119,6 +123,7 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::Internal(id),
             credentials: None,
+            external_token: None,
             key: None,
         }
     }
@@ -126,6 +131,7 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::Mqtt(id),
             credentials: None,
+            external_token: None,
             key: None,
         }
     }
@@ -133,6 +139,7 @@ impl JsonRpcRequestMeta {
         Self {
             source: RequestSource::Custom(id),
             credentials: None,
+            external_token: None,
             key: None,
         }
     }
@@ -159,6 +166,14 @@ impl JsonRpcRequestMeta {
     #[inline]
     pub fn take_key(&mut self) -> Option<String> {
         self.key.take()
+    }
+    #[inline]
+    pub fn set_external_token(&mut self, token: String) {
+        self.external_token = Some(token);
+    }
+    #[inline]
+    pub fn external_token(&self) -> Option<&str> {
+        self.external_token.as_deref()
     }
 }
 

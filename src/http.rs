@@ -114,7 +114,7 @@ impl HyperJsonRpcClient {
         match batch.pack_requests(Some(self.encoding))? {
             Some(data) => {
                 let Some(data) = http_request!(self.client, &self.uri, self.encoding, data) else {
-                    return Ok(())
+                    return Ok(());
                 };
                 batch.unpack_responses(&data, Some(self.encoding))
             }
@@ -135,7 +135,8 @@ impl HyperJsonRpcClient {
         }
         self.id += 1;
         let req = JsonRpcRequest::new(Some(Value::U32(self.id)), method, params, self.encoding);
-        let Some(payload) = http_request!(self.client, &self.uri, self.encoding, req.pack()?) else {
+        let Some(payload) = http_request!(self.client, &self.uri, self.encoding, req.pack()?)
+        else {
             return Err(JsonRpcError::internal_rpc("Empty response received"));
         };
         let response = JsonRpcResponse::unpack(&payload, self.encoding)?;
@@ -146,6 +147,7 @@ impl HyperJsonRpcClient {
 pub struct HyperJsonRpcServer {
     uris: Vec<String>,
     get_uris: Option<Vec<String>>,
+    external_token_header: Option<String>,
 }
 
 impl Default for HyperJsonRpcServer {
@@ -160,6 +162,7 @@ impl HyperJsonRpcServer {
         Self {
             uris: Vec::new(),
             get_uris: None,
+            external_token_header: None,
         }
     }
 
@@ -286,7 +289,14 @@ impl HyperJsonRpcServer {
             .get("x-auth-key")
             .and_then(|v| v.to_str().ok())
             .map(ToOwned::to_owned);
-        let meta = JsonRpcRequestMeta::http(ip, user_agent, credentials, key);
+        let mut meta = JsonRpcRequestMeta::http(ip, user_agent, credentials, key);
+        if let Some(header_name) = &self.external_token_header {
+            if let Some(token) = parts.headers.get(header_name) {
+                if let Ok(token_str) = token.to_str() {
+                    meta.set_external_token(token_str.to_owned());
+                }
+            }
+        }
         match parts.method {
             Method::GET => {
                 encoding = Encoding::Json;
@@ -305,7 +315,7 @@ impl HyperJsonRpcServer {
                 #[allow(clippy::redundant_closure)]
                 let id = qs.remove("i").map(|id| Value::String(id));
                 let Some(method) = qs.remove("m") else {
-                        return response!(StatusCode::BAD_REQUEST, "Method not specified");
+                    return response!(StatusCode::BAD_REQUEST, "Method not specified");
                 };
                 let params: BTreeMap<String, Value> = match qs.remove("p") {
                     Some(p) => match serde_json::from_str(&p) {
